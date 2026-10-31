@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#180e2a"/>
+      <stop offset="60%" stop-color="#0a0b12"/>
+      <stop offset="100%" stop-color="#050609"/>
+    </radialGradient>
+    <linearGradient id="neon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2ff"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ff007f"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="128" fill="url(#bg)"/>
+  <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="#00f2ff" stroke-width="4" opacity="0.3"/>
+
+  <!-- Glowing Soundwaves -->
+  <g filter="url(#glow)">
+    <circle cx="256" cy="256" r="140" fill="none" stroke="#a855f7" stroke-width="6" opacity="0.4" stroke-dasharray="16 12"/>
+    <circle cx="256" cy="256" r="180" fill="none" stroke="#00f2ff" stroke-width="4" opacity="0.6"/>
+    
+    <!-- Neon Wave Bars -->
+    <rect x="120" y="226" width="22" height="60" rx="11" fill="url(#neon)"/>
+    <rect x="160" y="186" width="22" height="140" rx="11" fill="url(#neon)"/>
+    <rect x="200" y="146" width="22" height="220" rx="11" fill="url(#neon)"/>
+    <rect x="245" y="106" width="22" height="300" rx="11" fill="#ffffff"/>
+    <rect x="290" y="146" width="22" height="220" rx="11" fill="url(#neon)"/>
+    <rect x="330" y="186" width="22" height="140" rx="11" fill="url(#neon)"/>
+    <rect x="370" y="226" width="22" height="60" rx="11" fill="url(#neon)"/>
+  </g>
+</svg>

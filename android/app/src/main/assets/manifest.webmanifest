@@ -1,0 +1,19 @@
+{
+  "name": "Neon Audio Player",
+  "short_name": "NeonPlayer",
+  "description": "Киберпанк аудиоплеер с темной неоновой темой, эквалайзером и визуализатором спектра",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#08090f",
+  "theme_color": "#08090f",
+  "categories": ["music", "multimedia", "utilities"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

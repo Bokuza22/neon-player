@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Neon Audio Player - Киберпанк Аудиоплеер</title>
+  <meta name="description" content="Локальный аудиоплеер с темной неоновой темой, drag-and-drop плейлистом, 10-полосным эквалайзером и реактивным Canvas-визуализатором спектра.">
+  <meta name="theme-color" content="#08090f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container" id="app">
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-title">Neon Wave</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="btn-timer-modal" title="Таймер сна">⏳</button>
+        <button class="icon-btn" id="btn-install-pwa" title="Установить PWA" style="display: none;">📲</button>
+      </div>
+    </header>
+
+    <!-- Views Container -->
+    <main class="views-container">
+      
+      <!-- ================= TAB 1: PLAYER ================= -->
+      <section class="tab-view active" id="view-player">
+        <!-- Album Art Card with Reactive Glow -->
+        <div class="artwork-container" id="artwork-card">
+          <img class="artwork-img" id="album-art" src="" alt="Album Artwork">
+        </div>
+
+        <!-- Mini Visualizer Canvas -->
+        <div class="mini-visualizer-box">
+          <canvas class="mini-visualizer-canvas" id="mini-visualizer"></canvas>
+        </div>
+
+        <!-- Track Info -->
+        <div class="track-info-wrap">
+          <h2 class="track-title" id="track-title">Трек не выбран</h2>
+          <p class="track-artist" id="track-artist">Загрузите аудиотрек или нажмите Демо</p>
+          <span class="track-badge" id="track-format">NEON AUDIO</span>
+        </div>
+
+        <!-- Progress Seekbar -->
+        <div class="progress-area">
+          <input type="range" class="neon-slider" id="progress-bar" min="0" max="100" value="0" step="0.1">
+          <div class="time-row">
+            <span id="time-current">0:00</span>
+            <span id="time-duration">0:00</span>
+          </div>
+        </div>
+
+        <!-- Primary Controls -->
+        <div class="controls-row">
+          <button class="btn-ctrl" id="btn-shuffle" title="Перемешать">🔀</button>
+          <button class="btn-ctrl" id="btn-prev" title="Предыдущий трек">⏮</button>
+          <button class="btn-play-pause" id="btn-play-pause" title="Воспроизведение / Пауза">▶</button>
+          <button class="btn-ctrl" id="btn-next" title="Следующий трек">⏭</button>
+          <button class="btn-ctrl" id="btn-repeat" title="Повтор">🔁</button>
+        </div>
+
+        <!-- Volume Control -->
+        <div class="volume-row">
+          <button class="btn-ctrl" id="btn-mute" style="width: 32px; height: 32px; font-size: 16px;">🔊</button>
+          <input type="range" class="neon-slider" id="volume-slider" min="0" max="1" step="0.01" value="0.85">
+        </div>
+
+        <!-- Quick Action Chips -->
+        <div class="quick-chips-row">
+          <button class="chip-btn" id="chip-demo-track">⚡ Синтезировать демо</button>
+          <button class="chip-btn" id="chip-add-files">➕ Выбрать треки</button>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: PLAYLIST ================= -->
+      <section class="tab-view" id="view-playlist">
+        <!-- Toolbar -->
+        <div class="playlist-toolbar">
+          <button class="btn-action accent" id="btn-pick-files">➕ Файлы</button>
+          <button class="btn-action" id="btn-pick-folder">📁 Папка</button>
+          <button class="btn-action" id="btn-add-synth">⚡ Демо</button>
+          <button class="btn-action" id="btn-clear-playlist">🗑️ Очистить</button>
+        </div>
+
+        <!-- Drag & Drop Dropzone -->
+        <div class="dropzone" id="playlist-dropzone">
+          <div class="dropzone-icon">📥</div>
+          <div class="dropzone-title">Перетащите аудиотреки сюда</div>
+          <div class="dropzone-subtitle">Поддерживаются MP3, FLAC, WAV, OGG, M4A, AAC</div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="playlist-search" placeholder="Поиск по названию или артисту...">
+        </div>
+
+        <!-- Track List -->
+        <div class="track-list" id="track-list-container">
+          <!-- Dynamically populated -->
+          <div class="empty-state" id="empty-playlist-msg">
+            <div class="empty-state-icon">🎵</div>
+            <h3>Плейлист пуст</h3>
+            <p>Перетащите аудиофайлы или нажмите кнопку "Файлы" / "Демо"</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: EQUALIZER ================= -->
+      <section class="tab-view" id="view-eq">
+        <!-- EQ Header Card -->
+        <div class="eq-header-card">
+          <div class="eq-toggle-wrap">
+            <label class="toggle-switch">
+              <input type="checkbox" id="eq-bypass-toggle" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <span style="font-weight: 700; font-size: 0.9rem;">ВКЛ Эквалайзер</span>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select class="preset-dropdown" id="eq-presets-select">
+              <option value="flat">Flat</option>
+              <option value="bassBoost">Bass Boost</option>
+              <option value="cyberpunk">Cyberpunk EDM</option>
+              <option value="synthwave">Synthwave</option>
+              <option value="rock">Rock</option>
+              <option value="pop">Pop</option>
+              <option value="hiphop">Hip-Hop</option>
+              <option value="techno">Techno</option>
+              <option value="jazz">Jazz</option>
+              <option value="acoustic">Acoustic</option>
+              <option value="vocal">Vocal Boost</option>
+            </select>
+            <button class="btn-action" id="btn-reset-eq" style="padding: 6px 10px; font-size: 0.75rem;">Сброс</button>
+          </div>
+        </div>
+
+        <!-- Preamp & Bass Boost -->
+        <div class="eq-knobs-row">
+          <div class="knob-card">
+            <div class="knob-label">Preamp Gain</div>
+            <input type="range" class="neon-slider" id="slider-preamp" min="-6" max="6" step="0.5" value="0">
+            <div class="knob-val" id="val-preamp">0.0 dB</div>
+          </div>
+          <div class="knob-card">
+            <div class="knob-label">Bass Boost</div>
+            <input type="range" class="neon-slider" id="slider-bass-boost" min="0" max="15" step="0.5" value="0">
+            <div class="knob-val" id="val-bass-boost">+0.0 dB</div>
+          </div>
+        </div>
+
+        <!-- 10-Band Graphic Equalizer Faders -->
+        <div class="eq-faders-container">
+          <div class="eq-faders-grid" id="eq-faders-grid">
+            <!-- 10 frequency columns injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Genre Presets Grid -->
+        <div class="presets-grid" id="genre-presets-container">
+          <button class="preset-chip active" data-preset="flat">Flat</button>
+          <button class="preset-chip" data-preset="bassBoost">🔥 Bass Boost</button>
+          <button class="preset-chip" data-preset="cyberpunk">⚡ Cyberpunk</button>
+          <button class="preset-chip" data-preset="synthwave">🌆 Synthwave</button>
+          <button class="preset-chip" data-preset="rock">🎸 Rock</button>
+          <button class="preset-chip" data-preset="pop">🎤 Pop</button>
+          <button class="preset-chip" data-preset="hiphop">🎧 Hip-Hop</button>
+          <button class="preset-chip" data-preset="techno">🔊 Techno</button>
+          <button class="preset-chip" data-preset="jazz">🎷 Jazz</button>
+          <button class="preset-chip" data-preset="vocal">🗣️ Vocal</button>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: VISUALIZER ================= -->
+      <section class="tab-view visualizer-view" id="view-visualizer">
+        <div class="canvas-wrapper">
+          <canvas class="fullscreen-canvas" id="fullscreen-visualizer"></canvas>
+        </div>
+        <div class="visualizer-controls-bar">
+          <div class="modes-row">
+            <button class="mode-btn active" data-mode="bars">⚡ Столбики</button>
+            <button class="mode-btn" data-mode="radial">⭕ Круговой</button>
+            <button class="mode-btn" data-mode="wave">〰️ Волна</button>
+            <button class="mode-btn" data-mode="starburst">✨ Взрыв</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">Чувствительность:</span>
+            <input type="range" class="neon-slider" id="vis-sensitivity" min="0.5" max="2.2" step="0.1" value="1.0">
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: SETTINGS & GUIDE ================= -->
+      <section class="tab-view settings-view" id="view-settings">
+        <!-- Mobile Guide Card -->
+        <div class="settings-card">
+          <h3 class="settings-card-title">📱 Как использовать на телефоне</h3>
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div><strong>Локальная сеть (Wi-Fi):</strong> Запустите скрипт <code>start-server.ps1</code> на компьютере и откройте выведенный IP-адрес в браузере телефона (например, <code>http://192.168.1.x:8080</code>).</div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div><strong>Добавить на главный экран (PWA):</strong> В браузере телефона нажмите «Поделиться» / меню (три точки) → «На экран Домой». Плеер установится как отдельное приложение с иконкой и офлайн-режимом!</div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div><strong>Управление с экрана блокировки:</strong> Плеер поддерживает MediaSession API — название трека, обложка и кнопки воспроизведения отображаются в шторке уведомлений и на заблокированном экране телефона.</div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">4</div>
+            <div><strong>Drag-and-Drop на телефоне:</strong> Удерживайте трек пальцем за маркер <code>⋮⋮</code> и перемещайте вверх или вниз для изменения порядка. Также есть удобные стрелки <code>▲ / ▼</code>.</div>
+          </div>
+        </div>
+
+        <!-- Neon Themes -->
+        <div class="settings-card">
+          <h3 class="settings-card-title">🎨 Неоновая тема оформления</h3>
+          <div class="theme-options">
+            <button class="theme-btn active" data-theme-name="cyberpunk">
+              <span class="theme-dot" style="background: #00f2ff; color: #00f2ff;"></span> Cyber Cyan & Pink
+            </button>
+            <button class="theme-btn" data-theme-name="synthwave">
+              <span class="theme-dot" style="background: #ff7700; color: #ff7700;"></span> Synthwave Sunset
+            </button>
+            <button class="theme-btn" data-theme-name="matrix">
+              <span class="theme-dot" style="background: #00ff66; color: #00ff66;"></span> Matrix Emerald
+            </button>
+            <button class="theme-btn" data-theme-name="laser-blue">
+              <span class="theme-dot" style="background: #00a2ff; color: #00a2ff;"></span> Laser Deep Blue
+            </button>
+          </div>
+        </div>
+
+        <!-- Privacy & Storage -->
+        <div class="settings-card">
+          <h3 class="settings-card-title">🔒 100% Локально и приватно</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+            Все ваши аудиофайлы обрабатываются локально на вашем устройстве через Web Audio API и File API. Ни один байт не отправляется в интернет.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <button class="nav-tab-btn active" data-tab="view-player">
+        <span class="nav-tab-icon">🎵</span>
+        <span class="nav-tab-label">Плеер</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="view-playlist">
+        <span class="nav-tab-icon">📋</span>
+        <span class="nav-tab-label">Плейлист</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="view-eq">
+        <span class="nav-tab-icon">🎚️</span>
+        <span class="nav-tab-label">Эквалайзер</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="view-visualizer">
+        <span class="nav-tab-icon">⚡</span>
+        <span class="nav-tab-label">Спектр</span>
+      </button>
+      <button class="nav-tab-btn" data-tab="view-settings">
+        <span class="nav-tab-icon">⚙️</span>
+        <span class="nav-tab-label">Инфо</span>
+      </button>
+    </nav>
+
+    <!-- Sleep Timer Modal -->
+    <div class="modal-overlay" id="timer-modal">
+      <div class="modal-card">
+        <h3 class="modal-title">⏳ Таймер сна</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+          Остановить воспроизведение через указанное время:
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+          <button class="btn-action" data-timer-mins="15">15 минут</button>
+          <button class="btn-action" data-timer-mins="30">30 минут</button>
+          <button class="btn-action" data-timer-mins="45">45 минут</button>
+          <button class="btn-action" data-timer-mins="60">60 минут</button>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <button class="btn-action" id="btn-cancel-timer" style="color: var(--neon-secondary);">Отключить</button>
+          <button class="btn-action" id="btn-close-timer-modal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden File Inputs -->
+    <input type="file" id="input-files" multiple accept="audio/*,.mp3,.flac,.wav,.ogg,.m4a,.aac,.webm" style="display: none;">
+    <input type="file" id="input-folder" webkitdirectory directory multiple style="display: none;">
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <script src="js/app.bundle.js"></script>
+</body>
+</html>

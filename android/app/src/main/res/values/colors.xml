@@ -1,0 +1,6 @@
+<resources>
+    <color name="primary_neon">#00F2FF</color>
+    <color name="secondary_neon">#FF007F</color>
+    <color name="bg_dark">#08090F</color>
+    <color name="nav_dark">#0A0C16</color>
+</resources>
